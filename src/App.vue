@@ -1,13 +1,3 @@
 <template>
-  <div>
-    123
-  </div>
+  <RouterView></RouterView>
 </template>
-
-<script>
-export default {
-  setup () {
-    return {}
-  }
-}
-</script>
