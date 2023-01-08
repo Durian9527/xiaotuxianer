@@ -1,20 +1,30 @@
 <template>
     <div>
-        <nav>顶部</nav>
-        <header>头部</header>
-        <div class="main">
+        <AppNavBar></AppNavBar>
+        <AppHeader></AppHeader>
+        <div class="app-body">
             <RouterView></RouterView>
         </div>
-        <footer>底部</footer>
+        <AppFooter></AppFooter>
     </div>
 </template>
 
 <script>
+import AppNavBar from '@/components/app-navbar.vue'
+import AppHeader from '@/components/app-header.vue'
+import AppFooter from '@/components/app-footer.vue'
 export default {
-  name: 'xtx-Layout'
+  name: 'xtx-Layout',
+  components: {
+    AppNavBar,
+    AppHeader,
+    AppFooter
+  }
 }
 </script>
 
-<style lang="scss" scoped>
-
+<style lang="less" scoped>
+.app-body{
+  min-height: 600px;
+}
 </style>
