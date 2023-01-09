@@ -1,12 +1,24 @@
 <template>
+  <div class="home-entry">
     <div class="container">
-        HomePage
+      <!-- 左侧 -->
+      <HomeCategory></HomeCategory>
+      <!-- 轮播图 -->
+      <HomeBanner></HomeBanner>
     </div>
+  </div>
 </template>
 
 <script>
+import HomeCategory from './components/home-category.vue'
+import HomeBanner from './components/home-banner.vue'
+
 export default {
   name: 'HomePage',
+  components: {
+    HomeCategory,
+    HomeBanner
+  },
   setup () {
     return {}
   }
