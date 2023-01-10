@@ -46,6 +46,7 @@ export default {
         }
       }, props.duration)
     }
+    // 如果有数据且开启了自动播放，才调用自动播放
     watch(() => props.sliders, (newVal) => {
       if (newVal.length && props.autoPlay) {
         autoPlayFn()
