@@ -4,6 +4,7 @@ const Layout = () => import('@/views/Layout')
 const Home = () => import('@/views/home')
 const TopCategory = () => import('@/views/category/index')
 const SubCategory = () => import('@/views/category/sub')
+const Goods = () => import('@/views/goods/index')
 
 const routes = [{
   path: '/',
@@ -11,7 +12,8 @@ const routes = [{
   children: [
     { path: '/', component: Home },
     { path: '/category/:id', component: TopCategory },
-    { path: '/category/sub/:id', component: SubCategory }
+    { path: '/category/sub/:id', component: SubCategory },
+    { path: '/product/:id', component: Goods }
   ]
 }]
 
