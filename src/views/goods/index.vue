@@ -17,20 +17,25 @@
         <div class="spec">
           <GoodsName :goods="goods"></GoodsName>
           <GoodsSku :goods="goods"  @change="changeSku"></GoodsSku>
+          <XtxNumbox label="数量" v-model="num" :max="goods.inventory"></XtxNumbox>
+          <XtxButton type="primary" style="margin-top:20px;">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
-      <GoodsRelevant />
+      <GoodsRelevant :goodsId="goods.id" />
       <!-- 商品详情 -->
       <div class="goods-footer">
         <div class="goods-article">
           <!-- 商品+评价 -->
-          <div class="goods-tabs"></div>
+          <GoodsTabs></GoodsTabs>
           <!-- 注意事项 -->
-          <div class="goods-warn"></div>
+          <GoodsWarn></GoodsWarn>
         </div>
         <!-- 24热榜+专题推荐 -->
-        <div class="goods-aside"></div>
+        <div class="goods-aside">
+          <GoodsHot></GoodsHot>
+          <GoodsHot :type="2"></GoodsHot>
+        </div>
       </div>
     </div>
   </div>
@@ -38,16 +43,20 @@
 
 <script>
 import { findGoods } from '@/api/product'
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import GoodsRelevant from './components/goods-relevant'
 import GoodsImage from './components/goods-image'
 import GoodsSales from './components/goods-sales.vue'
 import GoodsName from './components/goods-name'
 import GoodsSku from './components/goods-sku'
+import GoodsTabs from './components/goods-tabs.vue'
+import GoodsHot from './components/goods-hot.vue'
+import GoodsWarn from './components/goods-warn'
+
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku },
+  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku, GoodsTabs, GoodsHot, GoodsWarn },
   setup () {
     // 获取商品详情
     const goods = useGoods()
@@ -58,7 +67,12 @@ export default {
         goods.value.inventory = sku.inventory
       }
     }
-    return { goods, changeSku }
+
+    // 提供数据给后代
+    provide('goods', goods)
+
+    const num = ref(1)
+    return { goods, changeSku, num }
   }
 }
 const useGoods = () => {
@@ -109,11 +123,6 @@ const useGoods = () => {
     width: 280px;
     min-height: 1000px;
   }
-}
-
-.goods-tabs {
-  min-height: 600px;
-  background: #fff;
 }
 
 .goods-warn {
