@@ -37,7 +37,7 @@
             <div class="input">
               <i class="iconfont icon-code"></i>
               <Field :class="{error: errors.code}" v-model="form.code " name="code" type="text" placeholder="请输入验证码" />
-              <span class="code">发送验证码</span>
+              <span @click="send()" class="code">{{ time === 0 ? '发送验证码' : `${time - 1}秒后发送` }}</span>
             </div>
             <div class="error" v-if="errors.code"><i class="iconfont icon-warning" />{{ errors.code }}</div>
           </div>
@@ -55,7 +55,9 @@
         <a @click="login()" href="javascript:;" class="btn">登录</a>
       </Form>
       <div class="action">
-        <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+        <a href="https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback">
+            <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+        </a>
         <div class="url">
           <a href="javascript:;">忘记密码</a>
           <a href="javascript:;">免费注册</a>
@@ -65,10 +67,14 @@
   </template>
 
 <script>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onUnmounted } from 'vue'
 import { Form, Field } from 'vee-validate'
 import schema from '@/utils/vee-validate-schema'
 import Message from '@/components/library/Message'
+import { userAccountLogin, userMobileLoginMsg, userMobileLogin } from '@/api/user'
+import { useStore } from 'vuex'
+import { useRoute, useRouter } from 'vue-router'
+import { useIntervalFn } from '@vueuse/core'
 export default {
   name: 'LoginForm',
   components: { Form, Field },
@@ -108,14 +114,79 @@ export default {
     // proxy.$message({text: '测试'})
 
     // 登录时校验
+    const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
     const login = async () => {
       const valid = await target.value.validate()
-      console.log(valid)
-      Message({ type: 'error', text: '用户名或密码错误' })
+      // console.log(valid)
+      // Message({ type: 'error', text: '用户名或密码错误' })
       // proxy.$message({text: '测试'})
+      if (valid) {
+        try {
+          let data = null
+          if (isMsgLogin.value) {
+          // 手机号登录
+            const { mobile, code } = form
+            data = await userMobileLogin({ mobile, code })
+          } else {
+          // 账号登录
+            const { account, password } = form
+            data = await userAccountLogin({ account, password })
+          // const { account, password } = form
+          // userAccountLogin({ account, password }).then(data => {
+          //   const { id, account, avatar, mobile, nickname, token } = data.result
+          //   store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
+          //   router.push(route.query.redirectUrl || '/')
+          //   Message({ type: 'success', text: '登录成功' })
+          // }).catch(e => {
+          //   if (e.response.data) {
+          //     Message({ type: 'error', text: e.response.data.message || '登录成功' })
+          //   }
+          // })
+          }
+          const { id, account, avatar, mobile, nickname, token } = data.result
+          store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
+          router.push(route.query.redirectUrl || '/')
+          Message({ type: 'success', text: '登录成功' })
+        } catch (e) {
+          if (e.response.data) {
+            Message({ type: 'error', text: e.response.data.message || '登录失败' })
+          }
+        }
+      }
     }
 
-    return { isMsgLogin, form, schema: mySchema, target, login }
+    // useIntervalFn(回调函数， 间隔时间， 是否立即执行)
+    const time = ref(0)
+    const { pause, resume } = useIntervalFn(() => {
+      time.value--
+      if (time.value <= 0) {
+        pause()
+      }
+    }, 1000, false)
+    onUnmounted(() => {
+      pause()
+    })
+    const send = async () => {
+      const valid = mySchema.mobile(form.mobile)
+      if (valid === true) {
+        // 通过
+        if (time.value === 0) {
+          await userMobileLoginMsg(form.mobile)
+          Message({ type: 'success', text: '验证码发送成功' })
+          time.value = 60
+          resume()
+        }
+      } else {
+        // 失败, 使用vee的错误函数来显示错误信息 - setFieldError(字段, 错误信息)
+        target.value.setFieldError('mobile', valid)
+      }
+    }
+
+    // 初始化QQ登录按钮
+
+    return { isMsgLogin, form, schema: mySchema, target, login, send, time }
   }
 }
 </script>

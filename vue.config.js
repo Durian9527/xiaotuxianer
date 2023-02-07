@@ -1,6 +1,18 @@
 const { defineConfig } = require('@vue/cli-service')
 const path = require('path')
 module.exports = defineConfig({
+  // 设置外部扩展，导入qc后将不做打包
+  configureWebpack: {
+    externals: {
+      // 模块名: 全局变量名
+      qc: 'QC'
+    }
+  },
+  // 开启IP域名访问权限
+  devServer: {
+    // disableHostCheck: true
+    allowedHosts: ['www.corho.com'] // www.corho.com=>扫码授权后的回调地址
+  },
   transpileDependencies: true,
   pluginOptions: {
     'style-resources-loader': {
@@ -11,12 +23,14 @@ module.exports = defineConfig({
       ]
     },
     chainWebpack: config => {
+      // 图片加载
       config.module
         .rule('images')
         .use('url-loader')
         .loader('url-loader')
         .tap(options => Object.assign(options, { limit: 10000 }))
+      // 开启IP域名访问权限
+      // config.devServer.disableHostCheck(true)
     }
-
   }
 })
