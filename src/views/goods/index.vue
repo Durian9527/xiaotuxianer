@@ -18,7 +18,7 @@
           <GoodsName :goods="goods"></GoodsName>
           <GoodsSku :goods="goods"  @change="changeSku"></GoodsSku>
           <XtxNumbox label="数量" v-model="num" :max="goods.inventory"></XtxNumbox>
-          <XtxButton type="primary" style="margin-top:20px;">加入购物车</XtxButton>
+          <XtxButton @click="insertCart()" type="primary" style="margin-top:20px;">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -53,6 +53,8 @@ import GoodsSku from './components/goods-sku'
 import GoodsTabs from './components/goods-tabs.vue'
 import GoodsHot from './components/goods-hot.vue'
 import GoodsWarn from './components/goods-warn'
+import { useStore } from 'vuex'
+import Message from '@/components/library/Message'
 
 export default {
   name: 'XtxGoodsPage',
@@ -66,13 +68,44 @@ export default {
         goods.value.oldPrice = sku.oldPrice
         goods.value.inventory = sku.inventory
       }
+      // 记录选择后的sku
+      currSku.value = sku
     }
 
     // 提供数据给后代
     provide('goods', goods)
 
     const num = ref(1)
-    return { goods, changeSku, num }
+
+    // 加入购物车
+    const store = useStore()
+    const currSku = ref(null)
+    const insertCart = () => {
+      if (currSku.value && currSku.value.skuId) {
+        // id skuId name attrsText picture price nowPrice selected stock count isEffective
+        const { skuId, specsText: attrsText, inventory: stock } = currSku.value
+        const { id, name, price, mainPictures } = goods.value
+        store.dispatch('cart/insertCart', {
+          skuId,
+          attrsText,
+          stock,
+          id,
+          name,
+          price,
+          nowPrice: price,
+          picture: mainPictures[0],
+          selected: true,
+          isEffective: true,
+          count: num.value
+        }).then(() => {
+          Message({ type: 'success', text: '加入购物车成功' })
+        })
+      } else {
+        Message({ text: '请选择完整规格' })
+      }
+    }
+
+    return { goods, changeSku, num, insertCart }
   }
 }
 const useGoods = () => {

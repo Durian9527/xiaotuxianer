@@ -106,6 +106,7 @@ export default {
       form.password = null
       form.mobile = null
       form.code = null
+      // 补充校验效果清除，Form组件提供resetForm()
       target.value.resetForm()
     })
 
@@ -118,6 +119,7 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const login = async () => {
+      // Form组件提供了一个 validate 函数作为整体表单校验，当是返回的是一个promise
       const valid = await target.value.validate()
       // console.log(valid)
       // Message({ type: 'error', text: '用户名或密码错误' })
@@ -147,8 +149,10 @@ export default {
           }
           const { id, account, avatar, mobile, nickname, token } = data.result
           store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
-          router.push(route.query.redirectUrl || '/')
-          Message({ type: 'success', text: '登录成功' })
+          store.dispatch('cart/mergeCart').then(() => {
+            router.push(route.query.redirectUrl || '/')
+            Message({ type: 'success', text: '登录成功' })
+          })
         } catch (e) {
           if (e.response.data) {
             Message({ type: 'error', text: e.response.data.message || '登录失败' })
@@ -168,6 +172,7 @@ export default {
     onUnmounted(() => {
       pause()
     })
+
     const send = async () => {
       const valid = mySchema.mobile(form.mobile)
       if (valid === true) {

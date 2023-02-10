@@ -116,8 +116,10 @@ export default {
           // 登录成功
           const { id, account, avatar, mobile, nickname, token } = data.result
           store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
-          router.push(store.state.user.redirectUrl)
-          Message({ type: 'success', text: '信息完善成功' })
+          store.dispatch('cart/mergeCart').then(() => {
+            router.push(store.state.user.redirectUrl)
+            Message({ type: 'success', text: '信息完善成功' })
+          })
         }).catch(e => {
           Message({ type: 'error', text: '信息完善失败' })
         })

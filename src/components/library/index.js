@@ -17,6 +17,7 @@ import defaultImg from '@/assets/images/200.png'
 // 遍历的同时进行全局注册即可
 
 import Message from './Message'
+import Comfirm from './confirm'
 
 const importFn = require.context('./', false, /\.vue$/)
 export default {
@@ -40,6 +41,7 @@ export default {
     // 定义指令
     defineDirective(app)
     app.config.globalProperties.$message = Message
+    app.config.globalProperties.$confirm = Comfirm
   }
 }
 
