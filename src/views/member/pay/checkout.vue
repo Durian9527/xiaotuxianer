@@ -78,10 +78,10 @@
   </template>
 <script>
 import CheckoutAddress from './components/checkout-address.vue'
-import { createOrder, submitOrder } from '@/api/order'
+import { createOrder, submitOrder, repurchaseOrder } from '@/api/order'
 import { ref, reactive } from 'vue'
 import Message from '@/components/library/Message'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 export default {
   name: 'XtxPayCheckoutPage',
   components: {
@@ -90,10 +90,21 @@ export default {
   setup () {
     // 获取结算信息 生成订单
     const order = ref(null)
-    createOrder().then(data => {
-      order.value = data.result
-      reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
-    })
+    const route = useRoute()
+    if (route.query.orderId) {
+      // 订单再次购买结算
+      repurchaseOrder(route.query.orderId).then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+      })
+    } else {
+      // 购物车商品结算
+      createOrder().then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+      })
+    }
+
     // 提交订单需要接收收货地址ID
     const changeAddress = (id) => {
       reqParams.addressId = id
