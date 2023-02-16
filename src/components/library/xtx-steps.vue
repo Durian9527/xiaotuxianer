@@ -36,7 +36,7 @@ export default {
     // 根据动态节点生成item的jsx对象
     const itemsJsx = dynamicsItems.map((item, i) => {
       return (
-                <div class="xtx-steps-item" class={{ active: i < this.active }}>
+                <div class="xtx-steps-item" classname={{ active: i < this.active }}>
                     <div class="step"><span>{i + 1}</span></div>
                     <div class="title">{item.props.title}</div>
                     <div class="desc">{item.props.desc}</div>

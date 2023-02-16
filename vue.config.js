@@ -1,12 +1,16 @@
 const { defineConfig } = require('@vue/cli-service')
 const path = require('path')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 module.exports = defineConfig({
   // 设置外部扩展，导入qc后将不做打包
   configureWebpack: {
     externals: {
       // 模块名: 全局变量名
       qc: 'QC'
-    }
+    },
+    plugins: [
+      new BundleAnalyzerPlugin()
+    ]
   },
   // 开启IP域名访问权限
   devServer: {
